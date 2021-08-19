@@ -11,6 +11,7 @@ const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
 const errorController = require('./controllers/error');
 
+
 app.get('/favicon.ico', (req, res) => res.sendStatus(204));
 //added this because the browser searches a favicon. This resulted in double execution of the middleware functions below.
 
