@@ -1,4 +1,5 @@
 const products = [];
+const db = require('../util/database');
 const fs = require('fs');
 const path = require('path');
 const Cart = require("./cart");
@@ -31,7 +32,9 @@ module.exports = class Product {
     }
 
     save() {
-        getProductsFromFile((products => {
+        db.execute('INSERT INTO products (title, price, description, imageUrl) VALUE (?, ?, ?, ?)'
+            , [this.title, this.price, this.description]); //vanwege sql injection
+       /* getProductsFromFile((products => {
             if (this.id) {
                 const existingProductIndex = products.findIndex(prod => prod.id === this.id);
                 const updatedProducts = [...products];
@@ -48,13 +51,14 @@ module.exports = class Product {
                 });
             }
 
-        }));
+        }));*/
     }
 
     static deleteById (id) {
-        getProductsFromFile((products) => {
+        this.fetchAll().then((products) => {
             const product = products.find(prod => prod.id === id);
             const updatedProducts = products.filter(prod => prod.id !== id);
+            db.execute('DELETE FROM products WHERE id = ')
             fs.writeFile(p, JSON.stringify(updatedProducts), (err) => {
                 if (!err) {
                     Cart.deleteProduct(id, product.price);
@@ -63,15 +67,20 @@ module.exports = class Product {
         })
     }
 
-    static fetchAll(callBack) {
-        getProductsFromFile(callBack);
+    static fetchAll() {
+        return db.execute('SELECT * FROM products');
     }
 
-    static findById(id,cb) {
-        getProductsFromFile(products => {
+    static findById(id) {
+        db.execute('SELECT * FROM products WHERE products.id = ?', [id]);
+       /* this.fetchAll().then((products) => {
             const product = products.find(p => p.id === id);
-            cb(product);
-        });
+            return (product);
+        }).catch((error) => {
+            console.log(error);
+        })
+*/
+
     }
 
 
